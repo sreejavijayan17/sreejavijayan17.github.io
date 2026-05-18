@@ -82,6 +82,7 @@ ul {
 }
 
 .nav-container {
+    position: relative;
     max-width: var(--container);
     margin: 0 auto;
     padding: 0 1.5rem;
@@ -160,6 +161,10 @@ ul {
 }
 
 /* Sections */
+section[id] {
+    scroll-margin-top: calc(var(--header-height) + 1rem);
+}
+
 .section {
     padding: 5.5rem 0;
 }
@@ -230,8 +235,49 @@ ul {
     background: linear-gradient(180deg, var(--color-bg-alt) 0%, var(--color-bg) 60%);
 }
 
-.hero-inner {
-    max-width: 720px;
+.hero-grid {
+    display: grid;
+    grid-template-columns: 1fr minmax(260px, 380px);
+    gap: 3rem;
+    align-items: center;
+}
+
+.hero-content {
+    min-width: 0;
+}
+
+.hero-photo-wrap {
+    display: flex;
+    justify-content: center;
+}
+
+.hero-photo-frame {
+    position: relative;
+    width: 100%;
+    max-width: 360px;
+    border-radius: var(--radius-lg);
+    overflow: hidden;
+    border: 1px solid var(--color-border);
+    box-shadow: var(--shadow-md);
+    background: var(--color-surface);
+}
+
+.hero-photo-frame::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.4);
+    pointer-events: none;
+    z-index: 1;
+}
+
+.hero-photo {
+    width: 100%;
+    height: auto;
+    aspect-ratio: 4 / 5;
+    object-fit: cover;
+    object-position: center top;
 }
 
 .eyebrow {
@@ -574,6 +620,10 @@ ul {
     gap: 1.25rem;
 }
 
+.highlights-grid > li {
+    min-width: 0;
+}
+
 .highlight-card {
     text-align: center;
     padding: 2rem 1.5rem;
@@ -692,20 +742,39 @@ ul {
     gap: 0.6rem;
 }
 
-/* Reveal animations */
+/* Reveal animations — visible by default; hidden only when JS is active */
 .reveal {
-    opacity: 0;
-    transform: translateY(20px);
-    transition: opacity 0.6s ease, transform 0.6s ease;
+    opacity: 1;
+    transform: none;
 }
 
-.reveal.visible {
+html.js .reveal:not(.visible) {
+    opacity: 0;
+    transform: translateY(16px);
+    transition: opacity 0.55s ease, transform 0.55s ease;
+}
+
+html.js .reveal.visible {
     opacity: 1;
     transform: translateY(0);
 }
 
 /* Responsive */
 @media (max-width: 900px) {
+    .hero-grid {
+        grid-template-columns: 1fr;
+        gap: 2.5rem;
+    }
+
+    .hero-photo-wrap {
+        order: -1;
+    }
+
+    .hero-photo-frame {
+        max-width: 280px;
+        margin: 0 auto;
+    }
+
     .about-grid,
     .case-studies-grid,
     .skills-grid,
@@ -722,12 +791,27 @@ ul {
     }
 }
 
+@media (min-width: 769px) {
+    .nav-menu {
+        display: flex !important;
+        position: static;
+        transform: none;
+        opacity: 1;
+        visibility: visible;
+        box-shadow: none;
+        border: none;
+        padding: 0;
+        background: transparent;
+    }
+}
+
 @media (max-width: 768px) {
     .nav-toggle {
         display: flex;
     }
 
     .nav-menu {
+        display: none;
         position: fixed;
         top: var(--header-height);
         left: 0;
@@ -739,16 +823,11 @@ ul {
         border-bottom: 1px solid var(--color-border);
         padding: 1rem 1.5rem 1.5rem;
         box-shadow: var(--shadow-md);
-        transform: translateY(-100%);
-        opacity: 0;
-        visibility: hidden;
-        transition: transform var(--transition), opacity var(--transition), visibility var(--transition);
+        z-index: 99;
     }
 
     .nav-menu.open {
-        transform: translateY(0);
-        opacity: 1;
-        visibility: visible;
+        display: flex;
     }
 
     .nav-menu li {
@@ -803,7 +882,8 @@ ul {
         scroll-behavior: auto;
     }
 
-    .reveal {
+    .reveal,
+    html.js .reveal:not(.visible) {
         opacity: 1;
         transform: none;
         transition: none;
